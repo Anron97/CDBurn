@@ -14,6 +14,11 @@ public class CDBurn {
         listFiles.add(file);
     }
 
+    public long getSizeAllFiles() {
+       return (listFiles.stream().map(file -> file.length()))
+               .reduce(0L,(sum, length) -> sum += length);
+    }
+
     private void copyFiles() {
         for (File file : listFiles) {
             ExecuteCommandService.Execute("cp -R " + file.getAbsolutePath() + " /home/ptaxom/DiskBuffer");
