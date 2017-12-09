@@ -1,6 +1,8 @@
 package CDBurn;
 
-import CDBurn.Services.Tools;
+import CDBurn.AlertWindow.AlertWindow;
+import CDBurn.CDBurn.CDBurn;
+import CDBurn.CDBurn.CDBurnWatcher;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -10,14 +12,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 
 
-public class Controller {
+public class Controller implements CDBurnWatcher {
     @FXML
     private ListView<String> listView;
     @FXML
@@ -27,8 +28,7 @@ public class Controller {
     @FXML
     private Label  progress;
 
-    private StringProperty progressValue = new SimpleStringProperty();
-    private CDBurn cdBurn = new CDBurn(progressValue, this);
+    private CDBurn cdBurn = new CDBurn();
     private ObservableList<String> fileNames = FXCollections.observableArrayList();
     private FileChooser fileChooser = new FileChooser();
 
@@ -36,13 +36,15 @@ public class Controller {
     private void initialize() {
         listView.setItems(fileNames);
         fileChooser.setTitle("Choose file");
-        progress.textProperty().bind(progressValue);
+        cdBurn.setWatcher(this);
     }
 
     public void chooseFile() {
         File file = fileChooser.showOpenDialog(new Stage());
-        fileNames.add(file.getName());
-        cdBurn.addFile(file);
+        if(file != null) {
+            fileNames.add(file.getName());
+            cdBurn.addFile(file);
+        }
     }
 
     public void writeFiles() {
@@ -51,7 +53,17 @@ public class Controller {
         runAsynchronouslyWriteProcess();
     }
 
-    public void switchStateButtons() {
+    private void runAsynchronouslyWriteProcess() {
+        new Thread(() -> cdBurn.burnFiles()).start();
+    }
+
+    @Override
+    public void setProgressValue(String message) {
+        Platform.runLater(() -> progress.setText(message));
+    }
+
+    @Override
+    public void endRecord() {
         Platform.runLater(() -> {
             fileChooserButton.setDisable(false);
             write.setDisable(false);
@@ -59,7 +71,8 @@ public class Controller {
         });
     }
 
-    private void runAsynchronouslyWriteProcess() {
-        new Thread(() -> cdBurn.burnFiles()).start();
+    @Override
+    public void showError(String message) {
+        Platform.runLater(() -> AlertWindow.showErrorAlert(message));
     }
 }
