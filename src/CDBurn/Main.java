@@ -6,13 +6,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("CDBurn.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("CDBurn");
@@ -45,14 +46,14 @@ public class Main extends Application {
 
         TrayIcon icon = new TrayIcon(image, "I'm not a virus", popup);
         ActionListener listenerNotifications = actionEvent -> {
-            icon.displayMessage("Application", actionEvent.getActionCommand(), TrayIcon.MessageType.INFO);
+            if (!primaryStage.isShowing())
+                icon.displayMessage("Application", actionEvent.getActionCommand(), TrayIcon.MessageType.INFO);
         };
         Controller controller = loader.getController();
         controller.setNotificationListener(listenerNotifications);
         try {
             sTray.add(icon);
-        }
-        catch (AWTException e) {
+        } catch (AWTException e) {
             System.err.println(e);
         }
 
