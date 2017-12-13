@@ -15,6 +15,8 @@ import javafx.scene.control.ListView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 
@@ -31,6 +33,7 @@ public class Controller implements CDBurnWatcher {
     private CDBurn cdBurn = new CDBurn();
     private ObservableList<String> fileNames = FXCollections.observableArrayList();
     private FileChooser fileChooser = new FileChooser();
+    private ActionListener notificationListener;
 
     @FXML
     private void initialize() {
@@ -59,7 +62,10 @@ public class Controller implements CDBurnWatcher {
 
     @Override
     public void setProgressValue(String message) {
-        Platform.runLater(() -> progress.setText(message));
+        Platform.runLater(() -> {
+            progress.setText(message);
+            notificationListener.actionPerformed(new ActionEvent(this, 0, message));
+        });
     }
 
     @Override
@@ -74,5 +80,10 @@ public class Controller implements CDBurnWatcher {
     @Override
     public void showError(String message) {
         Platform.runLater(() -> AlertWindow.showErrorAlert(message));
+    }
+
+    public void setNotificationListener(ActionListener notificationListener) {
+        this.notificationListener = notificationListener;
+//        cdBurn.setNotificationListener(notificationListener);
     }
 }

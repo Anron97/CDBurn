@@ -1,12 +1,11 @@
 package CDBurn.CDBurn;
 
-import CDBurn.AlertWindow.AlertWindow;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.Buffer;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -77,9 +76,9 @@ public class CDBurn {
                 createISO();
                 formatDisk();
                 writeFilesToDisk();
-                changeProgress("Complete!");
                 deleteISO();
                 deleteFiles();
+                changeProgress("Complete!");
             } else {
                 watcher.showError("Not founded CD disk");
                 changeProgress("Error!");
@@ -98,7 +97,7 @@ public class CDBurn {
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+
                 if (line.contains(" written ")) {
                     watcher.setProgressValue(line.substring(0, line.indexOf(" written ")));
                 }
